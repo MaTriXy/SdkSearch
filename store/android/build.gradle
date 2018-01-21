@@ -47,6 +47,7 @@ dependencies {
 
   androidTestImplementation deps.android.test.runner
   androidTestImplementation deps.truth
+  androidTestImplementation deps.kotlin.coroutines.jdk
 }
 
 kotlin {
