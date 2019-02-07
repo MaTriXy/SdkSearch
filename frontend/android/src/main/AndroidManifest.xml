@@ -1,7 +1,15 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.jakewharton.sdksearch"
+    android:targetSandboxVersion="2"
+    tools:targetApi="26"
     >
+  <!-- Sandbox version 2 was used for an old instant apps hack. We cannot downgrade it now. -->
+
+  <!-- Instruct the Play Store to create an instant app from our bundle. -->
+  <dist:module dist:instant="true" />
 
   <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -17,10 +25,25 @@
         android:name=".ui.MainActivity"
         android:launchMode="singleInstance"
         >
+      <meta-data
+          android:name="default-url"
+          android:value="https://sdksearch.app/"
+          />
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="http" />
+        <data
+            android:scheme="https"
+            android:host="sdksearch.app"
+            android:pathPrefix="/"
+            />
       </intent-filter>
     </activity>
 

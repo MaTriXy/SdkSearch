@@ -1,0 +1,38 @@
+apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-dce-js'
+apply plugin: 'org.jetbrains.kotlin.frontend'
+apply plugin: 'distribution'
+
+dependencies {
+  compile project(':search:presenter')
+  compile project(':references')
+
+  compile deps.kotlin.stdlib.js
+  compile deps.kotlin.coroutines.js
+  compile deps.timber.js
+}
+
+kotlinFrontend {
+  webpackBundle {
+    bundleName = 'sdk-search'
+    contentPath = file('src/main/web')
+    mode = 'none'
+  }
+}
+
+distributions {
+  main {
+    baseName = 'sdk-search'
+
+    contents {
+      from 'src/main/web'
+      from "$buildDir/bundle/sdk-search.bundle.js"
+    }
+  }
+}
+
+distTar.enabled = false
+
+compileKotlin2Js {
+  kotlinOptions.moduleKind = 'commonjs'
+}

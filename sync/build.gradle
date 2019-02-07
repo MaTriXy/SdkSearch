@@ -1,40 +1,42 @@
-apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
-android {
-  compileSdkVersion buildConfig.compileSdk
+archivesBaseName = 'sync'
 
-  defaultConfig {
-    minSdkVersion buildConfig.minSdk
-  }
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
-
-  lintOptions {
-    textReport true
-    textOutput 'stdout'
-    lintConfig rootProject.file('lint.xml')
-
-    // We run a full lint analysis as build part in CI, so skip vital checks for assemble task.
-    checkReleaseBuilds false
-  }
-}
-
-dependencies {
-  api project(':api:dac:jdk')
-  api project(':store:android')
-  implementation deps.kotlin.stdlib.jdk
-  api deps.kotlin.coroutines.jdk
-  implementation deps.kotlin.coroutines.android
-  implementation deps.timber
+// TODO work around https://youtrack.jetbrains.com/issue/KT-27170
+configurations {
+  compileClasspath
 }
 
 kotlin {
-  experimental {
-    coroutines 'enable'
+  sourceSets {
+    commonMain {
+      dependencies {
+        api project(':api:dac')
+        api project(':store:item')
+        api deps.kotlin.stdlib.common
+        api deps.kotlin.coroutines.common
+        implementation deps.timber.common
+      }
+    }
+    jsMain {
+      dependencies {
+        api deps.kotlin.stdlib.js
+        api deps.kotlin.coroutines.js
+        implementation deps.timber.js
+      }
+    }
+    jvmMain {
+      dependencies {
+        api project(':api:dac:jdk-temp')
+        api deps.kotlin.stdlib.jdk
+        api deps.kotlin.coroutines.jdk
+        implementation deps.timber.jdk
+      }
+    }
+  }
+
+  targets {
+    fromPreset(presets.jvm, 'jvm')
+    fromPreset(presets.js, 'js')
   }
 }

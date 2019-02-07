@@ -1,0 +1,34 @@
+apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-dce-js'
+apply plugin: 'org.jetbrains.kotlin.frontend'
+
+dependencies {
+  compile deps.kotlin.stdlib.js
+  compile deps.kotlin.coroutines.js
+  compile project(':search:ui-omnibox')
+  compile project(':store:config:js-storage-area')
+  compile project(':store:item:js-storage-area')
+  compile project(':references')
+  compile project(':chrome-platform:chrome')
+  compile deps.timber.js
+}
+
+kotlinFrontend {
+  webpackBundle {
+    mode = 'production' // Non-production uses eval() which isn't supported in a Chrome extension.
+  }
+}
+
+compileKotlin2Js {
+  kotlinOptions.moduleKind = 'commonjs'
+}
+
+configurations {
+  content
+}
+
+artifacts {
+  content(file("$buildDir/bundle/${name}.bundle.js")) {
+    builtBy 'bundle'
+  }
+}

@@ -1,54 +1,47 @@
-apply plugin: 'kotlin2js' // TODO why isn't this org.jetbrains.kotlin.js?
-apply plugin: 'kotlin-dce-js'
-apply plugin: 'com.eriwen.gradle.js'
 apply plugin: 'distribution'
 
-archivesBaseName = 'sdk-search'
+configurations {
+  content
+}
 
 dependencies {
-  compile deps.kotlin.stdlib.js
-  compile deps.kotlin.coroutines.js
-  compile deps.kotlin.serialization.js
-  compile project(':api:dac:js')
-  compile project(':references:js')
-  compile project(':store:js')
-  compile project(':chrome-platform')
+  content project(path: ':frontend:chrome-extension:background', configuration: 'content')
+  content project(path: ':frontend:chrome-extension:content', configuration: 'content')
+  content project(path: ':frontend:chrome-extension:options', configuration: 'content')
 }
-
-kotlin {
-  experimental {
-    coroutines 'enable'
-  }
-}
-
-combineJs {
-  source = [
-      // Order is important!
-      "$buildDir/kotlin-js-min/main/kotlin.js",
-      "$buildDir/kotlin-js-min/main/kotlinx-coroutines-core-js.js",
-      "$buildDir/kotlin-js-min/main/kotlinx-serialization-runtime-js.js",
-      "$buildDir/kotlin-js-min/main/api-dac.js",
-      "$buildDir/kotlin-js-min/main/references.js",
-      "$buildDir/kotlin-js-min/main/store.js",
-      "$buildDir/kotlin-js-min/main/chrome-platform.js",
-      "$buildDir/kotlin-js-min/main/sdk-search.js",
-  ]
-  dest = file("$buildDir/combined/${archivesBaseName}.js")
-}
-combineJs.dependsOn(runDceKotlinJs)
-
-distZip.dependsOn(combineJs)
-distTar.enabled = false
-installDist.dependsOn(combineJs)
 
 distributions {
-  main {
-    baseName = archivesBaseName
+  release {
+    baseName = 'sdk-search-release'
 
     contents {
-      from 'src/main/manifest.json'
-      from 'src/main/static'
-      from "$buildDir/combined"
+      from('manifest.json') {
+        expand(
+            name: 'Android SDK Search',
+            version: buildConfig.version.fullName,
+            keyword: 'ad'
+        )
+      }
+      from 'src/common/dist'
+      from configurations.content
+    }
+  }
+  debug {
+    baseName = 'sdk-search-debug'
+
+    contents {
+      from('manifest.json') {
+        expand(
+            name: 'Android SDK Search (Debug)',
+            version: buildConfig.version.fullName,
+            keyword: 'ad2'
+        )
+      }
+      from 'src/common/dist'
+      from configurations.content
     }
   }
 }
+
+releaseDistTar.enabled = false
+debugDistTar.enabled = false

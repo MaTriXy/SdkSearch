@@ -1,19 +1,11 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.github.triplet.play'
 
 archivesBaseName = 'sdk-search'
 
 android {
   compileSdkVersion buildConfig.compileSdk
-
-  playAccountConfigs {
-    production {
-      serviceAccountEmail = propOrEmpty('SDK_SEARCH_UPLOAD_PLAY_EMAIL')
-      pk12File = file('upload.p12')
-    }
-  }
 
   defaultConfig {
     applicationId 'com.jakewharton.sdksearch'
@@ -30,8 +22,6 @@ android {
     buildConfigField 'boolean', 'IS_CI_BUILD', 'false' // May be overridden by a build type.
     buildConfigField 'String', 'COMMIT_SHA', "\"${gitSha()}\""
     buildConfigField 'long', 'COMMIT_UNIX_TIMESTAMP', gitTimestamp().toString() + "L"
-
-    playAccountConfig = playAccountConfigs.production
   }
 
   compileOptions {
@@ -43,6 +33,10 @@ android {
     textReport true
     textOutput 'stdout'
     lintConfig rootProject.file('lint.xml')
+
+    checkDependencies true
+    checkTestSources true
+    explainIssues false
 
     // We run a full lint analysis as build part in CI, so skip vital checks for assemble task.
     checkReleaseBuilds false
@@ -71,6 +65,7 @@ android {
       signingConfig signingConfigs.debug
 
       buildConfigField 'boolean', 'IS_CI_BUILD', isCiBuild.toString()
+      buildConfigField 'String', 'CIRCLE_CI_TOKEN', "\"${propOrEmpty('SDK_SEARCH_CIRCLE_CI_TOKEN')}\""
     }
     release {
       if (file('upload.keystore').exists()) {
@@ -81,23 +76,30 @@ android {
 
       minifyEnabled true
       shrinkResources true
-      proguardFiles(
-          file('src/main/proguard-android.pro'),
-          file('src/main/proguard-app.pro')
-      )
+      proguardFiles(file('src/main/shrinker-rules.pro'))
     }
   }
 
   packagingOptions {
     exclude 'kotlin/**'
+    exclude '**/*.kotlin_metadata'
     exclude 'META-INF/*.kotlin_module'
     exclude 'META-INF/*.version'
+  }
+
+  bundle {
+    language {
+      enableSplit = false // We currently only have one language.
+    }
   }
 }
 
 dependencies {
-  implementation project(':references:jdk')
-  implementation project(':sync')
+  implementation project(':search:ui-android')
+  implementation project(':store:item:android-sql')
+
+  debugImplementation project(':options:ui-android')
+  debugImplementation project(':store:config:android-preferences')
 
   debugImplementation project(':debug-updater')
 
@@ -105,28 +107,18 @@ dependencies {
   implementation deps.kotlin.coroutines.jdk
   implementation deps.kotlin.coroutines.android
 
-  implementation deps.android.support.annotations
-  implementation deps.android.support.recyclerView
-  implementation deps.android.support.customTabs
-  implementation deps.android.support.design
-  implementation deps.android.support.constraintLayout
+  implementation deps.androidx.appCompat
 
-  implementation deps.rx.java
-  implementation deps.rx.android
-  implementation deps.rx.binding.framework
+  implementation deps.okhttp.logging
 
-  implementation deps.timber
+  implementation deps.byteunits
 
+  implementation deps.timber.android
   implementation deps.bugsnag
-}
+  implementation project(':bugsnag-tree')
 
-kotlin {
-  experimental {
-    coroutines 'enable'
-  }
-}
-
-play {
-  track = 'alpha'
-  uploadImages = true
+  implementation deps.dagger.runtime
+  implementation deps.dagger.androidRuntime
+  kapt deps.dagger.compiler
+  kapt deps.dagger.androidCompiler
 }

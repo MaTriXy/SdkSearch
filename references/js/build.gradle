@@ -1,9 +1,0 @@
-apply plugin: 'org.jetbrains.kotlin.platform.js'
-
-archivesBaseName = 'references'
-
-dependencies {
-  expectedBy project(':references')
-  compile deps.kotlin.stdlib.js
-  testCompile deps.kotlin.test.js
-}

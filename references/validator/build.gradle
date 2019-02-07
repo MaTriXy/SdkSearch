@@ -1,4 +1,4 @@
-apply plugin: 'java-library'
+apply plugin: 'java'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'application'
 
@@ -8,13 +8,11 @@ targetCompatibility = JavaVersion.VERSION_1_8
 mainClassName = 'com.jakewharton.sdksearch.reference.validator.ReferenceValidator'
 
 dependencies {
-  implementation project(':references:jdk')
-  implementation project(':api:dac:jdk')
+  implementation project(':references')
+  implementation project(':api:dac:jdk-temp')
+  implementation deps.kotlin.coroutines.jdk8
   implementation deps.okhttp.client
+  implementation deps.argparser
 }
 
-kotlin {
-  experimental {
-    coroutines 'enable'
-  }
-}
+distTar.enabled = false

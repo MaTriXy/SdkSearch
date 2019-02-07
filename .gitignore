@@ -1,6 +1,7 @@
 # IDEA
 *.iml
 /.idea
+!/.idea/runConfigurations
 
 # Gradle
 .gradle
@@ -10,6 +11,10 @@ build
 # Gradle Android
 /local.properties
 /captures
+
+# Node
+node_modules
+package-lock.json
 
 # OSX
 .DS_Store

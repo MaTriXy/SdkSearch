@@ -3,20 +3,23 @@ package com.jakewharton.sdksearch
 import android.annotation.SuppressLint
 import android.app.Application
 import com.bugsnag.android.Bugsnag
-import com.jakewharton.sdksearch.util.BugsnagTree
+import com.jakewharton.timber.bugsnag.BugsnagTree
+import dagger.android.HasActivityInjector
+import timber.log.LogcatTree
 import timber.log.Timber
-import timber.log.Timber.DebugTree
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class SdkSearchApplication : Application() {
+class SdkSearchApplication : Application(), HasActivityInjector {
+  private lateinit var appComponent: AppComponent
+
   override fun onCreate() {
     super.onCreate()
 
     if (BuildConfig.IS_CI_BUILD || !BuildConfig.DEBUG) {
-      require(BuildConfig.BUGSNAG_API_KEY.isNotBlank()) {
+      check(BuildConfig.BUGSNAG_API_KEY.isNotBlank()) {
         "Bugsnag API key is blank. Check the README and your Gradle configuration!"
       }
 
@@ -37,9 +40,13 @@ class SdkSearchApplication : Application() {
     }
 
     if (BuildConfig.DEBUG) {
-      Timber.plant(DebugTree())
+      Timber.plant(LogcatTree())
     }
+
+    appComponent = createAppComponent()
   }
+
+  override fun activityInjector() = appComponent.activityInjector
 
   @SuppressLint("SimpleDateFormat") // Explicitly after normalized format not localized.
   private fun formattedCommitTime(): String {

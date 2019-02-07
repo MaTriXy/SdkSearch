@@ -6,8 +6,18 @@ An Android app and Chrome Extension for searching the Android SDK documentation.
 
 Google Play    | Chrome Web Store
 -------------- | ----------------
-[Download!][1] | Coming soon!
-<img src="frontend/android/src/main/play/en-US/listing/phoneScreenshots/1.png" height="400"/> | <img src="frontend/chrome-extension/src/main/store/screenshots/1.png"/>
+[Download!][1] | [Install!][2]
+<img src="frontend/android/src/main/play/en-US/listing/phoneScreenshots/1.png" height="375"/> | <img src="frontend/chrome-extension/store/screenshots/1.png" height="375"/>
+
+
+Building
+--------
+
+Prerequisites:
+
+ * JDK 8 (kapt doesn't like 9 or 10, TODO find/file a bug for this)
+ * Node 8 or newer
+ * Android SDK unzipped and `ANDROID_HOME` environment variable set to its path.
 
 
 
@@ -30,3 +40,4 @@ License
 
 
  [1]: https://play.google.com/store/apps/details?id=com.jakewharton.sdksearch
+ [2]: https://chrome.google.com/webstore/detail/android-sdk-search/elihjfnjglabmkeonphlglkpjppchoco

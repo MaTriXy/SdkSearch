@@ -1,2 +1,1 @@
-* Fancy new icon! Thanks Nick Butcher (and Roman Nurik)!
-* Lower supported Android version to 7.0.
+Fixed crash on startup caused by the developer documentation deleting the damn data that this app was using!
