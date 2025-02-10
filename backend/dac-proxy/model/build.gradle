@@ -1,0 +1,32 @@
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'kotlinx-serialization'
+
+archivesBaseName = 'dac-proxy-model'
+
+kotlin {
+  jvm()
+  js {
+    browser()
+  }
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        api deps.kotlin.stdlib.common
+        implementation deps.kotlin.serialization.common
+      }
+    }
+    jvmMain {
+      dependencies {
+        api deps.kotlin.stdlib.jdk
+        implementation deps.kotlin.serialization.jdk
+      }
+    }
+    jsMain {
+      dependencies {
+        api deps.kotlin.stdlib.js
+        api deps.kotlin.serialization.js
+      }
+    }
+  }
+}

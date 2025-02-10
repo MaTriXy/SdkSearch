@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class SearchPresenter(
@@ -38,13 +39,13 @@ class SearchPresenter(
     }
 
     launch {
-      store.count().consumeEach {
+      store.count().collect {
         sendModel(model.copy(count = it))
       }
     }
 
     launch {
-      synchronizer.state.consumeEach {
+      synchronizer.state.collect {
         sendModel(model.copy(syncStatus = when (it) {
           ItemSynchronizer.SyncStatus.IDLE -> SyncStatus.IDLE
           ItemSynchronizer.SyncStatus.SYNC -> SyncStatus.SYNC
@@ -74,7 +75,7 @@ class SearchPresenter(
                 activeQueryJob = launch {
                   delay(queryDelay)
 
-                  store.queryItems(query).consumeEach {
+                  store.queryItems(query).collect {
                     sendModel(model.copy(queryResults = Model.QueryResults(activeQuery, it)))
                   }
                 }

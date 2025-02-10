@@ -4,12 +4,12 @@ config: &config
   working_directory: ~/SdkSearch
 
   docker:
-    - image: jakewharton/sdksearch:0.0.3
+    - image: jakewharton/sdksearch:0.0.5
 
   environment:
     TERM: dumb
     JAVA_TOOL_OPTIONS: "-Xmx1g"
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2 -Dkotlin.incremental=false"
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dkotlin.incremental=false"
 
 
 cache_key: &cache_key
@@ -28,7 +28,7 @@ jobs:
 
       - run:
           name: Assemble
-          command: ./gradlew --stacktrace --init-script init.gradle -Dtrace projectDependencyGraph assemble bundle :store:item:android-sql:assembleAndroidTest test :frontend:android:lint
+          command: ./gradlew --stacktrace --init-script init.gradle -Dtrace projectDependencyGraph build :frontend:android:bundle :store:item:android-sql:assembleAndroidTest
           # TODO remove bundle https://issuetracker.google.com/issues/79936441
           # TODO remove assembleAndroidTest https://issuetracker.google.com/issues/80464227
           # TODO remove assembleAndroidTest https://issuetracker.google.com/issues/79934948
@@ -39,7 +39,7 @@ jobs:
       - store_artifacts:
           path: frontend/chrome-extension/build/distributions/
       - store_artifacts:
-          path: frontend/web/build/distributions/
+          path: frontend/web/build/sdk-search.zip
       - store_artifacts:
           path: references/legacy-printer/build/distributions/
       - store_artifacts:
@@ -67,7 +67,7 @@ jobs:
             - ~/.gradle/wrapper
 
 
-  validate:
+  references_validator:
     <<: *config
 
     steps:
@@ -88,6 +88,24 @@ jobs:
           path: validation_report.txt
 
 
+  dac_proxy_functional_tests:
+    <<: *config
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          <<: *cache_key
+
+      - run:
+          name: Test
+          command: ./gradlew --stacktrace :backend:dac-proxy:functionalTest
+      - store_test_results:
+          path: backend/dac-proxy/build/test-results/functionalTest
+      - store_artifacts:
+          path: backend/dac-proxy/build/test-results/functionalTest
+
+
 workflows:
   version: 2
 
@@ -97,7 +115,8 @@ workflows:
 
   validation:
     jobs:
-      - validate
+      - references_validator
+      - dac_proxy_functional_tests
     triggers:
       - schedule:
           cron: "0 0 * * *"

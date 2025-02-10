@@ -1,5 +1,6 @@
 package com.jakewharton.sdksearch.debug.updater
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -22,6 +23,8 @@ import androidx.core.content.getSystemService
 import com.jakewharton.sdksearch.api.circleci.CircleCiComponent
 import com.jakewharton.sdksearch.api.circleci.Filter.SUCCESSFUL
 import com.jakewharton.sdksearch.api.circleci.VcsType.GITHUB
+import java.io.File
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -31,8 +34,6 @@ import timber.log.Timber
 import timber.log.debug
 import timber.log.info
 import timber.log.warn
-import java.io.File
-import java.io.IOException
 
 private const val KEY_CONFIG = "config"
 private const val CHANNEL_ID = "debug-updater"
@@ -46,6 +47,7 @@ internal fun Context.startUpdateService(config: UpdateConfig) {
 
 @RestrictTo(LIBRARY) // Public for Android to create.
 class UpdateService : Service() {
+  @SuppressLint("WrongConstant") // TODO https://issuetracker.google.com/issues/140626689
   override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
     val config = intent.getParcelableExtra<UpdateConfig>(KEY_CONFIG)
     if (config == null) {
@@ -84,7 +86,7 @@ class UpdateService : Service() {
 
       val timestampArtifact = artifacts.single { it.prettyPath.endsWith(config.timestampPath) }
       val timestamp = try {
-        service.getArtifact(timestampArtifact.url).await().string().toLong()
+        service.getArtifact(timestampArtifact.url).string().toLong()
       } catch (e: IOException) {
         Timber.info(e) { "Failed to fetch timestamp of latest build." }
         stopSelf(startId)
@@ -113,7 +115,7 @@ class UpdateService : Service() {
 
       val apkArtifact = artifacts.single { it.prettyPath.endsWith(config.apkPath) }
       try {
-        val apkResponse = service.getArtifact(apkArtifact.url).await()
+        val apkResponse = service.getArtifact(apkArtifact.url)
 
         apkResponse.use { response ->
           apkFile.sink().buffer().use { destination ->

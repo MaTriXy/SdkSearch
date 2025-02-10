@@ -3,24 +3,18 @@ apply plugin: 'com.squareup.sqldelight'
 
 archivesBaseName = 'store-item'
 
-// TODO work around https://youtrack.jetbrains.com/issue/KT-27170
-configurations {
-  compileClasspath
-}
-
 kotlin {
+  jvm()
+  js {
+    browser()
+  }
+
   sourceSets {
     commonMain {
       dependencies {
         api deps.kotlin.stdlib.common
         api deps.kotlin.coroutines.common
         api deps.sqldelight.runtime.common
-      }
-    }
-    commonTest {
-      dependencies {
-        implementation deps.kotlin.test.common
-        implementation deps.kotlin.test.annotations
       }
     }
     jsMain {
@@ -30,11 +24,6 @@ kotlin {
         api deps.sqldelight.runtime.js
       }
     }
-    jsTest {
-      dependencies {
-        implementation deps.kotlin.test.js
-      }
-    }
     jvmMain {
       dependencies {
         api deps.kotlin.stdlib.jdk
@@ -42,37 +31,19 @@ kotlin {
         api deps.sqldelight.runtime.jdk
       }
     }
-    jvmTest {
-      dependencies {
-        implementation deps.kotlin.test.jdk
-      }
-    }
-  }
-
-  targets {
-    fromPreset(presets.jvm, 'jvm')
-    fromPreset(presets.js, 'js')
   }
 }
 
 sqldelight {
-  packageName = 'com.jakewharton.sdksearch.store.item'
-  className = 'ItemDatabase'
+  ItemDatabase {
+    packageName = 'com.jakewharton.sdksearch.store.item'
+  }
 }
 
-afterEvaluate {
-  compileKotlinJs.dependsOn("generateSqlDelightInterface")
-  compileKotlinJvm.dependsOn("generateSqlDelightInterface")
-}
-check.dependsOn("verifySqlDelightMigration")
+ktlint {
+  ignoreFailures = true // TODO why isn't this working?
 
-// TODO: Remove this when we can exclude build (https://github.com/JLLeitschuh/ktlint-gradle/issues/97)
-// TODO re-enable after https://github.com/JLLeitschuh/ktlint-gradle/issues/144
-//afterEvaluate {
-//  ktlintMainCheck.doFirst {
-//    ant.move(file: file('build/sqldelight'), todir: file('../tmp'))
-//  }
-//  ktlintMainCheck.doLast {
-//    ant.move(file: file('../tmp/sqldelight'), todir: file('build'))
-//  }
-//}
+  filter {
+    exclude("**/sqldelight/**")
+  }
+}

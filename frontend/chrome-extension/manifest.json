@@ -1,8 +1,9 @@
 {
   "name": "$name",
-  "description": "Adds an 'ad' Omnibox command and 'view source' links for the Android SDK",
+  "description": "Adds an '$keyword' Omnibox command and 'view source' links for the Android SDK",
   "version": "$version",
   "manifest_version": 2,
+  "minimum_chrome_version": "73",
   "icons": {
     "16": "icon_16.png",
     "32": "icon_32.png",
@@ -11,7 +12,7 @@
   },
   "background": {
     "scripts": [
-      "background.bundle.js"
+      "background.js"
     ]
   },
   "content_scripts": [
@@ -20,7 +21,7 @@
         "*://developer.android.com/reference/*"
       ],
       "js": [
-        "content.bundle.js"
+        "content.js"
       ]
     }
   ],
@@ -29,10 +30,6 @@
   },
   "permissions": [
     "storage",
-    "https://developer.android.com/"
-  ],
-  "options_ui": {
-    "page": "options.html",
-    "chrome_style": true
-  }
+    "https://api.sdksearch.app/"
+  ]
 }

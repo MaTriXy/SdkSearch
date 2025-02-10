@@ -7,7 +7,6 @@ configurations {
 dependencies {
   content project(path: ':frontend:chrome-extension:background', configuration: 'content')
   content project(path: ':frontend:chrome-extension:content', configuration: 'content')
-  content project(path: ':frontend:chrome-extension:options', configuration: 'content')
 }
 
 distributions {
@@ -24,6 +23,8 @@ distributions {
       }
       from 'src/common/dist'
       from configurations.content
+
+      into '/'
     }
   }
   debug {
@@ -39,9 +40,13 @@ distributions {
       }
       from 'src/common/dist'
       from configurations.content
+
+      into '/'
     }
   }
 }
 
+releaseDistZip.inputs.property('fullName', buildConfig.version.fullName)
 releaseDistTar.enabled = false
+debugDistZip.inputs.property('fullName', buildConfig.version.fullName)
 debugDistTar.enabled = false

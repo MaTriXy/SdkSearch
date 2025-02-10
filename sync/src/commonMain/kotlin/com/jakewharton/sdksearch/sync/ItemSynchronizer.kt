@@ -1,23 +1,22 @@
 package com.jakewharton.sdksearch.sync
 
 import com.jakewharton.sdksearch.api.dac.DocumentationService
+import com.jakewharton.sdksearch.store.item.Item
 import com.jakewharton.sdksearch.store.item.ItemStore
-import com.jakewharton.sdksearch.store.item.ItemUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import timber.log.debug
 import timber.log.info
-import timber.log.warn
 
 class ItemSynchronizer(
   private val itemStore: ItemStore,
   private val documentationService: DocumentationService
 ) {
   private val _state = ConflatedBroadcastChannel<SyncStatus>()
-  val state: ReceiveChannel<SyncStatus> get() = _state.openSubscription()
+  val state = _state.asFlow()
 
   fun forceSync() {
     _state.offer(SyncStatus.SYNC)
@@ -30,24 +29,19 @@ class ItemSynchronizer(
   private suspend fun load(): Boolean {
     Timber.debug { "Listing items..." }
 
-    val result = try {
-      documentationService.list().await()
+    val apiItems = try {
+      documentationService.list()
     } catch (e: Exception) {
       Timber.info(e) { "Unable to load items" }
       return false
     }
 
-    val apiItems = result.values.singleOrNull()
-    if (apiItems == null) {
-      Timber.warn { "More than one key returned from listing: ${result.keys}" }
-      return false
-    }
-
     Timber.debug { "Listing got ${apiItems.size} items" }
 
-    val items = apiItems.map { ItemUtil.createForInsert(it.type, it.link, it.metadata) }
+    val dbItems = apiItems
+        .map { Item.Impl(-1, it.packageName, it.className, it.deprecated, it.link) }
     try {
-      itemStore.updateItems(items)
+      itemStore.updateItems(dbItems)
     } catch (e: RuntimeException) {
       Timber.info(e) { "Unable to save items" }
       return false

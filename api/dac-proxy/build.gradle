@@ -1,0 +1,48 @@
+apply plugin: 'org.jetbrains.kotlin.multiplatform'
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'kotlin-kapt'
+
+archivesBaseName = 'api-dac-proxy'
+
+kotlin {
+  jvm {
+    withJava()
+  }
+  js {
+    browser()
+  }
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        api deps.kotlin.stdlib.common
+        api deps.kotlin.coroutines.common
+        api project(':backend:dac-proxy:model')
+        implementation deps.kotlin.serialization.common
+      }
+    }
+    jvmMain {
+      dependencies {
+        api deps.kotlin.stdlib.jdk
+        api deps.kotlin.coroutines.jdk
+        implementation deps.kotlin.serialization.jdk
+        implementation deps.retrofit.client
+        implementation deps.retrofit.converterKotlinxSerialization
+        api deps.okhttp.client
+        api deps.okio
+        implementation deps.dagger.runtime
+      }
+    }
+    jsMain {
+      dependencies {
+        api deps.kotlin.stdlib.js
+        api deps.kotlin.coroutines.js
+        api deps.kotlin.serialization.js
+      }
+    }
+  }
+}
+
+dependencies {
+  kapt deps.dagger.compiler
+}

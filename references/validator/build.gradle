@@ -2,17 +2,14 @@ apply plugin: 'java'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'application'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 mainClassName = 'com.jakewharton.sdksearch.reference.validator.ReferenceValidator'
 
 dependencies {
   implementation project(':references')
-  implementation project(':api:dac:jdk-temp')
+  implementation project(':api:dac-proxy')
   implementation deps.kotlin.coroutines.jdk8
   implementation deps.okhttp.client
-  implementation deps.argparser
+  implementation deps.clikt
 }
 
 distTar.enabled = false

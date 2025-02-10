@@ -1,0 +1,47 @@
+apply plugin: 'java'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'application'
+
+mainClassName = 'com.jakewharton.sdksearch.proxy.Proxy'
+
+sourceSets {
+  functionalTest {
+    compileClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.main.output
+  }
+}
+
+configurations {
+  functionalTestImplementation.extendsFrom implementation
+  functionalTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+  implementation deps.kotlin.stdlib.jdk
+  implementation deps.kotlin.serialization.jdk
+  implementation deps.kotlin.coroutines.jdk
+  implementation deps.okhttp.client
+  implementation deps.okhttp.logging
+  implementation deps.moshi
+  implementation deps.jsoup
+  implementation deps.ktor.core
+  implementation deps.ktor.netty
+  implementation deps.logback
+  implementation project(':backend:dac-proxy:model')
+
+  testImplementation deps.junit
+  testImplementation deps.truth
+
+  functionalTestImplementation deps.junit
+  functionalTestImplementation deps.truth
+}
+
+task functionalTest(type: Test) {
+  description = 'Run functional tests'
+  group = 'verification'
+
+  testClassesDirs = sourceSets.functionalTest.output.classesDirs
+  classpath = sourceSets.functionalTest.runtimeClasspath
+}
+
+distTar.enabled = false

@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'org.jetbrains.kotlin.kapt'
 
 archivesBaseName = 'sdk-search'
 
@@ -22,11 +22,6 @@ android {
     buildConfigField 'boolean', 'IS_CI_BUILD', 'false' // May be overridden by a build type.
     buildConfigField 'String', 'COMMIT_SHA', "\"${gitSha()}\""
     buildConfigField 'long', 'COMMIT_UNIX_TIMESTAMP', gitTimestamp().toString() + "L"
-  }
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   lintOptions {
@@ -97,9 +92,6 @@ android {
 dependencies {
   implementation project(':search:ui-android')
   implementation project(':store:item:android-sql')
-
-  debugImplementation project(':options:ui-android')
-  debugImplementation project(':store:config:android-preferences')
 
   debugImplementation project(':debug-updater')
 

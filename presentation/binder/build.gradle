@@ -2,16 +2,16 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 archivesBaseName = 'presentation-binder'
 
-// TODO work around https://youtrack.jetbrains.com/issue/KT-27170
-configurations {
-  compileClasspath
-}
-
 kotlin {
+  jvm()
+  js {
+    browser()
+  }
+
   sourceSets {
     commonMain {
       dependencies {
-        api project(':presentation:presenter')
+        api project(':presentation:presenter2')
         api deps.kotlin.stdlib.common
         api deps.kotlin.coroutines.common
       }
@@ -28,10 +28,5 @@ kotlin {
         api deps.kotlin.coroutines.js
       }
     }
-  }
-
-  targets {
-    fromPreset(presets.jvm, 'jvm')
-    fromPreset(presets.js, 'js')
   }
 }

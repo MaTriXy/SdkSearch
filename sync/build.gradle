@@ -2,16 +2,16 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 archivesBaseName = 'sync'
 
-// TODO work around https://youtrack.jetbrains.com/issue/KT-27170
-configurations {
-  compileClasspath
-}
-
 kotlin {
+  jvm()
+  js {
+    browser()
+  }
+
   sourceSets {
     commonMain {
       dependencies {
-        api project(':api:dac')
+        api project(':api:dac-proxy')
         api project(':store:item')
         api deps.kotlin.stdlib.common
         api deps.kotlin.coroutines.common
@@ -22,21 +22,16 @@ kotlin {
       dependencies {
         api deps.kotlin.stdlib.js
         api deps.kotlin.coroutines.js
-        implementation deps.timber.js
+        api deps.timber.js
       }
     }
     jvmMain {
       dependencies {
-        api project(':api:dac:jdk-temp')
+        api project(':api:dac-proxy')
         api deps.kotlin.stdlib.jdk
         api deps.kotlin.coroutines.jdk
         implementation deps.timber.jdk
       }
     }
-  }
-
-  targets {
-    fromPreset(presets.jvm, 'jvm')
-    fromPreset(presets.js, 'js')
   }
 }

@@ -8,9 +8,6 @@ import com.jakewharton.presentation.Presentation
 import com.jakewharton.presentation.bindTo
 import com.jakewharton.presentation.startPresentation
 import com.jakewharton.sdksearch.R
-import com.jakewharton.sdksearch.reference.AndroidReference
-import com.jakewharton.sdksearch.reference.PRODUCTION_DAC
-import com.jakewharton.sdksearch.reference.PRODUCTION_GIT_WEB
 import com.jakewharton.sdksearch.search.presenter.SearchPresenter
 import com.jakewharton.sdksearch.search.ui.ClipboardCopyItemHandler
 import com.jakewharton.sdksearch.search.ui.OpenDocumentationItemHandler
@@ -20,22 +17,19 @@ import com.jakewharton.sdksearch.search.ui.ShareItemHandler
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import okhttp3.HttpUrl
-import timber.log.Timber
-import timber.log.error
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import timber.log.error
 
 class MainActivity : Activity() {
-  private val binderJob = Job()
-  private val scope = CoroutineScope(Dispatchers.Main + binderJob)
+  private val scope = MainScope()
 
   @Inject lateinit var searchPresenterProvider: Provider<SearchPresenter>
-  @Inject lateinit var baseUrl: HttpUrl
 
   private lateinit var presentation: Presentation
 
@@ -58,11 +52,10 @@ class MainActivity : Activity() {
         ?: searchPresenterProvider.get().startPresentation(Dispatchers.Main)
     val presenter = presentation.presenter as SearchPresenter
 
-    val androidReference = AndroidReference(PRODUCTION_GIT_WEB, PRODUCTION_DAC)
-    val onClick = OpenDocumentationItemHandler(this, baseUrl, androidReference)
-    val onCopy = ClipboardCopyItemHandler(this, baseUrl)
-    val onShare = ShareItemHandler(this, baseUrl)
-    val onSource = OpenSourceItemHandler(this, androidReference)
+    val onClick = OpenDocumentationItemHandler(this)
+    val onCopy = ClipboardCopyItemHandler(this)
+    val onShare = ShareItemHandler(this)
+    val onSource = OpenSourceItemHandler(this)
 
     val defaultQuery = if (savedInstanceState == null) {
       val data = intent.data
@@ -85,7 +78,7 @@ class MainActivity : Activity() {
 
   override fun onDestroy() {
     super.onDestroy()
-    binderJob.cancel()
+    scope.cancel()
 
     if (!isChangingConfigurations) {
       presentation.stop()

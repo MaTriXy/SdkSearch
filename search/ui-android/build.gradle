@@ -8,11 +8,6 @@ android {
     minSdkVersion buildConfig.minSdk
   }
 
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
-
   lintOptions {
     textReport true
     textOutput 'stdout'
@@ -29,7 +24,7 @@ android {
 dependencies {
   implementation project(':roboto')
   api project(':search:presenter')
-  api project(':references')
+  implementation project(':references')
   api project(':presentation:binder')
 
   implementation deps.kotlin.stdlib.jdk

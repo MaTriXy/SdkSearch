@@ -1,21 +1,10 @@
 package com.jakewharton.sdksearch.reference
 
-const val PRODUCTION_DAC = "https://developer.android.com/"
-const val PRODUCTION_GIT_WEB = "https://android.googlesource.com/"
-
-class AndroidReference(
-  val gitWebUrl: String,
-  val dacUrl: String
-) {
-  init {
-    require(gitWebUrl.endsWith('/')) { "Git web URL must end with '/': $gitWebUrl" }
-    require(dacUrl.endsWith('/')) { "DAC URL must end with '/': $dacUrl" }
-  }
-
+object AndroidReference {
   fun sourceUrl(packageName: String, className: String): String? {
     val path = findSourceLocation("$packageName.$className") ?: return null
     return buildString {
-      append(gitWebUrl)
+      append("https://android.googlesource.com/")
       append(path.project.projectDir)
       append("+/refs/heads/")
       append(path.branch)

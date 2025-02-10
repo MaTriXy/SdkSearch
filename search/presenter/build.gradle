@@ -3,54 +3,11 @@ apply plugin: 'com.android.library'
 
 archivesBaseName = 'search-presenter'
 
-// TODO work around https://youtrack.jetbrains.com/issue/KT-27170
-configurations {
-  compileClasspath
-}
-
-kotlin {
-  sourceSets {
-    commonMain {
-      dependencies {
-        api project(':sync')
-        api project(':presentation:presenter')
-        api deps.kotlin.stdlib.common
-        api deps.kotlin.coroutines.common
-      }
-    }
-    jsMain {
-      dependencies {
-        api deps.kotlin.stdlib.js
-        api deps.kotlin.coroutines.js
-      }
-    }
-  }
-
-  targets {
-    fromPreset(presets.android, 'android')
-    fromPreset(presets.js, 'js')
-  }
-}
-
-/* android */ dependencies {
-  // TODO these two shouldn't be required to be duplicated here
-  api project(':sync')
-  api project(':presentation:presenter')
-
-  api deps.kotlin.stdlib.jdk
-  api deps.kotlin.coroutines.jdk
-}
-
 android {
   compileSdkVersion buildConfig.compileSdk
 
   defaultConfig {
     minSdkVersion buildConfig.minSdk
-  }
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   lintOptions {
@@ -60,5 +17,35 @@ android {
 
     // We run a full lint analysis as build part in CI, so skip vital checks for assemble task.
     checkReleaseBuilds false
+  }
+}
+
+kotlin {
+  android()
+  js {
+    browser()
+  }
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        api project(':sync')
+        api project(':presentation:presenter2')
+        api deps.kotlin.stdlib.common
+        api deps.kotlin.coroutines.common
+      }
+    }
+    androidMain {
+      dependencies {
+        api deps.kotlin.stdlib.jdk
+        api deps.kotlin.coroutines.jdk
+      }
+    }
+    jsMain {
+      dependencies {
+        api deps.kotlin.stdlib.js
+        api deps.kotlin.coroutines.js
+      }
+    }
   }
 }

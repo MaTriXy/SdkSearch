@@ -15,9 +15,18 @@ Building
 
 Prerequisites:
 
- * JDK 8 (kapt doesn't like 9 or 10, TODO find/file a bug for this)
+ * JDK 8 or newer
  * Node 8 or newer
  * Android SDK unzipped and `ANDROID_HOME` environment variable set to its path.
+
+
+
+Crash Reporting
+---------------
+
+Provided [for free](https://www.bugsnag.com/open-source) by
+
+![Bugsnag](art/bugsnag_logo_navy.png)
 
 
 

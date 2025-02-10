@@ -2,12 +2,12 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 
 archivesBaseName = 'references'
 
-// TODO work around https://youtrack.jetbrains.com/issue/KT-27170
-configurations {
-  compileClasspath
-}
-
 kotlin {
+  jvm()
+  js {
+    browser()
+  }
+
   sourceSets {
     commonMain {
       dependencies {
@@ -40,10 +40,5 @@ kotlin {
         implementation deps.kotlin.test.js
       }
     }
-  }
-
-  targets {
-    fromPreset(presets.jvm, 'jvm')
-    fromPreset(presets.js, 'js')
   }
 }
